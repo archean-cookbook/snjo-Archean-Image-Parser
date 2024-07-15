@@ -27,7 +27,7 @@
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer Grid.Column="0" Margin="5" >
-                <TextBox x:Name="TextBoxGrid"/>
+                <TextBox x:Name="TextBoxGrid" FontFamily="Consolas"/>
             </ScrollViewer>
             <ScrollViewer Grid.Column="1" Margin="5" >
                 <TextBox x:Name="TextBoxCommands"/>

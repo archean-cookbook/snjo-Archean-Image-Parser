@@ -99,20 +99,27 @@ namespace Archean_Image_Parser
 
         string MakePixelGrid(int[,] grid)
         {
-            string result = string.Empty;
+            StringBuilder result = new();
             int width = grid.GetLength(0);
             int height = grid.GetLength(1);
-            Debug.WriteLine($"grid x{width} y{height}");
+            //Debug.WriteLine($"grid x{width} y{height}");
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0;x < width; x++)
                 {
                     // Debug.WriteLine($"x{x} y{y}");
-                    result += grid[x, y];
+                    if (palette.Count > 10)
+                    {
+                        result.Append((grid[x, y]).ToString().PadLeft(4));
+                    }
+                    else
+                    {
+                        result.Append(grid[x, y]);
+                    }
                 }
-                result += Environment.NewLine;
+                result.AppendLine();
             }
-            return result;
+            return result.ToString();
         }
 
         void PrintPalette()
@@ -172,6 +179,12 @@ namespace Archean_Image_Parser
             return archColor;
         }
 
+        string PaletteToColorFunction(int paletteNumber)
+        {
+            System.Drawing.Color pColor = palette[paletteNumber];
+            return $"color({pColor.A},{pColor.R},{pColor.G},{pColor.B},)";
+        }
+
         string CreateDrawCommands(int[,] grid, string name)
         {
             int width = grid.GetLength(0);
@@ -180,17 +193,55 @@ namespace Archean_Image_Parser
             commands.AppendLine($"function @sprite_{name}($_screen:screen,$x:number,$y:number)");
             for (int p = 0; p < palette.Count; p++)
             {
-                uint archColor = PaletteToArchColor(p);
+                string archColor = PaletteToColorFunction(p);
                 commands.AppendLine($"\tvar $_c{p} = {archColor}");
             }
             for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < width; x++)
+                commands.AppendLine($"--- row {y} ---");
+                for (int x = 0; x < width;)
                 {
-                    //Debug.WriteLine($"x{x}  y{y}");
-                    //uint color = PaletteToArchColor(grid[x, y]);
-                    int pNum = grid[x, y];
-                    commands.AppendLine($"\t$_screen.draw_point($x+{x},$y+{y},$_c{pNum})");
+                    int pNow = grid[x, y];
+
+                    // check for contiguous line
+                    int chunkLength = 1;
+                    int chunkHeight = 1;
+                    bool growX = true;
+                    bool growY = true;
+                    //l = x + 1
+                    //while (growX || growY)
+                    for (int l = x+1; l < width; l++)
+                    {
+                        int pNext = grid[l, y];
+
+                        if (pNext == pNow)
+                        {
+                            chunkLength++;
+                        }
+                        else // debug
+                        {
+                            if (y < 2) // debug
+                                Debug.WriteLine($"line ends");
+                            break;
+                        }
+
+                        if (y < 2) // debug
+                        {
+                            Debug.WriteLine($"l{l} x{x} y{y} pnow{pNow} pnext{pNext} length{chunkLength}");
+                        }
+                    }
+
+                    if (chunkLength < 2)
+                    {
+                        commands.AppendLine($"\t$_screen.draw_point($x+{x},$y+{y},$_c{pNow})");
+                        x++;
+                    }
+                    else
+                    {
+                        commands.AppendLine($"\t$_screen.draw_line($x+{x},$y+{y}, $x+{x+chunkLength},$y+{y} $_c{pNow}) ; line {chunkLength} ");
+                        x += chunkLength;
+                    }
+                    
                 }
             }
             return commands.ToString();
