@@ -85,7 +85,7 @@ namespace Archean_Image_Parser
                     commands = (CreateDrawCommands(pixelGrid,System.IO.Path.GetFileNameWithoutExtension(loadFileName)));
                 }
                 // PrintPalette();
-                // PrintPixelGrid(pixelGrid);
+                TextBoxGrid.Text = MakePixelGrid(pixelGrid);
                 // Debug.WriteLine(commands);
                 TextBoxCommands.Text = commands;
             }

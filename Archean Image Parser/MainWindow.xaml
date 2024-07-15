@@ -7,17 +7,31 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Horizontal" Height="35">
-                <Button x:Name="ButtonLoadImage" Content="Load image" Width="100" Margin="5" Click="ButtonLoadImage_Click"></Button>
-                <Button x:Name="ButtonProcessImage" Content="Process image" Width="100" Margin="5" Click="ButtonProcessImage_Click"></Button>
-            </StackPanel>
-            <Border Background="Gray">
-                <StackPanel Orientation="Vertical" Margin="5">
-                    <Image x:Name="SourceImageView" Width="100" Height="100"></Image>
-                    <TextBox x:Name="TextBoxCommands"></TextBox>
-                </StackPanel>
-            </Border>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Height="35">
+            <Button x:Name="ButtonLoadImage" Content="Load image" Width="100" Margin="5" Click="ButtonLoadImage_Click"></Button>
+            <Button x:Name="ButtonProcessImage" Content="Process image" Width="100" Margin="5" Click="ButtonProcessImage_Click"></Button>
         </StackPanel>
+        <Border Grid.Row="1" Background="Gray">
+            <Image x:Name="SourceImageView" Width="100" Height="100"></Image>
+        </Border>
+
+        <Grid Grid.Row="2" Background="Gray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Column="0" Margin="5" >
+                <TextBox x:Name="TextBoxGrid"/>
+            </ScrollViewer>
+            <ScrollViewer Grid.Column="1" Margin="5" >
+                <TextBox x:Name="TextBoxCommands"/>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Window>
