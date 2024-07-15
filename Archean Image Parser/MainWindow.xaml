@@ -13,9 +13,9 @@
                 <Button x:Name="ButtonProcessImage" Content="Process image" Width="100" Margin="5" Click="ButtonProcessImage_Click"></Button>
             </StackPanel>
             <Border Background="Gray">
-                <StackPanel Orientation="Horizontal" Margin="5">
-
+                <StackPanel Orientation="Vertical" Margin="5">
                     <Image x:Name="SourceImageView" Width="100" Height="100"></Image>
+                    <TextBox x:Name="TextBoxCommands"></TextBox>
                 </StackPanel>
             </Border>
         </StackPanel>

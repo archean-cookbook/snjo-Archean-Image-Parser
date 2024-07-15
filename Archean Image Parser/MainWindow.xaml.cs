@@ -84,10 +84,10 @@ namespace Archean_Image_Parser
                     
                     commands = (CreateDrawCommands(pixelGrid,System.IO.Path.GetFileNameWithoutExtension(loadFileName)));
                 }
-                PrintPalette();
-                PrintPixelGrid(pixelGrid);
-                Debug.WriteLine(commands);
-
+                // PrintPalette();
+                // PrintPixelGrid(pixelGrid);
+                // Debug.WriteLine(commands);
+                TextBoxCommands.Text = commands;
             }
         }
 
@@ -178,13 +178,19 @@ namespace Archean_Image_Parser
             int height = grid.GetLength(1);
             StringBuilder commands = new();
             commands.AppendLine($"function @sprite_{name}($_screen:screen,$x:number,$y:number)");
+            for (int p = 0; p < palette.Count; p++)
+            {
+                uint archColor = PaletteToArchColor(p);
+                commands.AppendLine($"\tvar $_c{p} = {archColor}");
+            }
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     //Debug.WriteLine($"x{x}  y{y}");
-                    uint color = PaletteToArchColor(grid[x, y]);
-                    commands.AppendLine($"\t$_screen.draw_point($x+{x},$y+{y},{color})");
+                    //uint color = PaletteToArchColor(grid[x, y]);
+                    int pNum = grid[x, y];
+                    commands.AppendLine($"\t$_screen.draw_point($x+{x},$y+{y},$_c{pNum})");
                 }
             }
             return commands.ToString();
