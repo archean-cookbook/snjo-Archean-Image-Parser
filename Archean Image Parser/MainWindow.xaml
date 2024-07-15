@@ -1,0 +1,23 @@
+﻿<Window x:Class="Archean_Image_Parser.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Archean_Image_Parser"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" Height="35">
+                <Button x:Name="ButtonLoadImage" Content="Load image" Width="100" Margin="5" Click="ButtonLoadImage_Click"></Button>
+                <Button x:Name="ButtonProcessImage" Content="Process image" Width="100" Margin="5" Click="ButtonProcessImage_Click"></Button>
+            </StackPanel>
+            <Border Background="Gray">
+                <StackPanel Orientation="Horizontal" Margin="5">
+
+                    <Image x:Name="SourceImageView" Width="100" Height="100"></Image>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Window>
