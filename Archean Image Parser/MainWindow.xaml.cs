@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using System;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -16,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace Archean_Image_Parser
 {
@@ -50,13 +52,24 @@ namespace Archean_Image_Parser
             }
         }
 
-        private void ButtonProcessImage_Click(object sender, RoutedEventArgs e)
+        private void ButtonProcessImageH_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessImage(true);
+        }
+
+        private void ButtonProcessImageV_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessImage(false);
+        }
+
+        private void ProcessImage(bool horizontal)
         {
             string commands = string.Empty;
+            int[,]? pixelGrid;
             Debug.WriteLine("Process image");
             if (bitmap != null)
             {
-                int[,] pixelGrid = new int[bitmap.Width,bitmap.Height];
+                pixelGrid = new int[bitmap.Width,bitmap.Height];
                 for (int y = 0; y < bitmap.Height; y++)
                 { 
                     for (int x = 0;  x < bitmap.Width; x++)
@@ -82,10 +95,12 @@ namespace Archean_Image_Parser
                         //Debug.WriteLine($"pixel {x} {y}: {color}");
                     }
                     
-                    commands = (CreateDrawCommands(pixelGrid,System.IO.Path.GetFileNameWithoutExtension(loadFileName)));
+                    
                 }
-                // PrintPalette();
                 TextBoxGrid.Text = MakePixelGrid(pixelGrid);
+                commands = CreateCommands(pixelGrid, System.IO.Path.GetFileNameWithoutExtension(loadFileName),horizontal);
+                // PrintPalette();
+                
                 // Debug.WriteLine(commands);
                 TextBoxCommands.Text = commands;
             }
@@ -182,13 +197,11 @@ namespace Archean_Image_Parser
         string PaletteToColorFunction(int paletteNumber)
         {
             System.Drawing.Color pColor = palette[paletteNumber];
-            return $"color({pColor.A},{pColor.R},{pColor.G},{pColor.B},)";
+            return $"color({pColor.R},{pColor.G},{pColor.B},{pColor.A})";
         }
 
-        string CreateDrawCommands(int[,] grid, string name)
+        string CreateCommands(int[,] grid, string name,bool horizontal)
         {
-            int width = grid.GetLength(0);
-            int height = grid.GetLength(1);
             StringBuilder commands = new();
             commands.AppendLine($"function @sprite_{name}($_screen:screen,$x:number,$y:number)");
             for (int p = 0; p < palette.Count; p++)
@@ -196,20 +209,120 @@ namespace Archean_Image_Parser
                 string archColor = PaletteToColorFunction(p);
                 commands.AppendLine($"\tvar $_c{p} = {archColor}");
             }
+
+            if (horizontal)
+            {
+                commands.AppendLine(CreateDrawCommandsHorizontal(grid, name));
+            }
+            else
+            {
+                commands.AppendLine(CreateDrawCommandsVertical(grid, name));
+            }
+            //commands.AppendLine(CreateDrawCommandsRect(grid, name));
+
+            return commands.ToString();
+        }
+
+        string CreateDrawCommandsRect(int[,] grid, string name)
+        {
+            int width = grid.GetLength(0);
+            int height = grid.GetLength(1);
+            StringBuilder commands = new();
+
+            for (int y = 0; y < height; y++) // row
+            {
+                Debug.WriteLine($"\nrow y{y} ------");
+                commands.AppendLine($"; --- row {y} ---");
+                for (int x = 0; x < width; x++) // column
+                {
+                    
+                    int pixelSource = grid[x, y];
+                    Debug.WriteLine($"\nloop: x:{x} y:{y} col:{pixelSource}");
+
+                    int left = x;
+                    int top = y;
+                    int right = left;
+                    int bottom = top;
+                    int pixelHorizontal = -1;
+                    int pixelVertical = -1;
+                    int maxHeight = height;
+                    int maxWidth = width;
+                    for (right = left; right < width && bottom < height && right < maxWidth; right++)
+                    {
+                        Debug.WriteLine($"seek l:{left} t:{top} r:{right} b:{bottom}");
+                        pixelHorizontal = grid[right, top];
+                        
+                        if (pixelHorizontal < 0) // for later, if blanked by previous rect
+                        {
+                            continue;
+                        }
+
+                        if (pixelHorizontal != pixelSource || right == width-1)
+                        {
+                            if (pixelSource >= 0)
+                            {
+                                Debug.WriteLine($"result: left {left} top {top}  right {right} bottom {bottom}, color {pixelSource}/{pixelHorizontal}/{pixelVertical}");
+                                commands.AppendLine($"\t$_screen.draw_rect($x+{left},$y+{top},$x+{x + right},$y+{y + bottom},0,$_c{pixelSource}) ; w{right - left} h{bottom - top}");
+                            }
+                            x = right;
+                            maxWidth = Math.Min(right,maxWidth);
+
+                            for (int clearX = left; clearX <= right; clearX++)
+                            {
+                                for (int clearY = top; clearY <= bottom; clearY++)
+                                {
+                                    grid[clearX, clearY] = -1;
+                                }
+                            }
+
+                            //break; // test
+                        }
+                        else
+                        {
+                            bool foundMismatch = false;
+                            for (bottom = top; bottom < height && bottom < maxHeight; bottom++)
+                            {
+                                //Debug.WriteLine($">>> l:{left} t:{top} r:{right} b:{bottom}   {pixelVertical} != {pixelSource}");
+                                pixelVertical = grid[right, bottom];
+                                if (pixelVertical != pixelSource || bottom == height - 1)
+                                {
+                                    foundMismatch = true;
+                                    maxHeight = Math.Min(bottom,maxHeight);
+                                    //maxWidth = right;
+                                    Debug.WriteLine($"mismatch at l:{left} t:{top} r:{right} b:{bottom}   {pixelVertical} != {pixelSource}");
+                                    break;
+                                    //break;
+                                }
+                            }   
+                            if (!foundMismatch)
+                            {
+                                continue;
+                            }
+                        }
+                        
+                    }
+                }
+            }
+
+            return commands.ToString();
+        }
+
+        string CreateDrawCommandsHorizontal(int[,] grid, string name)
+        {
+            int width = grid.GetLength(0);
+            int height = grid.GetLength(1);
+            StringBuilder commands = new();
+            
             for (int y = 0; y < height; y++)
             {
-                commands.AppendLine($"--- row {y} ---");
+                commands.AppendLine($"; --- row {y} ---");
                 for (int x = 0; x < width;)
                 {
                     int pNow = grid[x, y];
 
                     // check for contiguous line
                     int chunkLength = 1;
-                    int chunkHeight = 1;
-                    bool growX = true;
-                    bool growY = true;
-                    //l = x + 1
-                    //while (growX || growY)
+
                     for (int l = x+1; l < width; l++)
                     {
                         int pNext = grid[l, y];
@@ -218,16 +331,9 @@ namespace Archean_Image_Parser
                         {
                             chunkLength++;
                         }
-                        else // debug
+                        else
                         {
-                            if (y < 2) // debug
-                                Debug.WriteLine($"line ends");
                             break;
-                        }
-
-                        if (y < 2) // debug
-                        {
-                            Debug.WriteLine($"l{l} x{x} y{y} pnow{pNow} pnext{pNext} length{chunkLength}");
                         }
                     }
 
@@ -238,10 +344,57 @@ namespace Archean_Image_Parser
                     }
                     else
                     {
-                        commands.AppendLine($"\t$_screen.draw_line($x+{x},$y+{y}, $x+{x+chunkLength},$y+{y} $_c{pNow}) ; line {chunkLength} ");
+                        commands.AppendLine($"\t$_screen.draw_line($x+{x},$y+{y}, $x+{x+chunkLength},$y+{y}, $_c{pNow}) ; line {chunkLength} ");
                         x += chunkLength;
                     }
                     
+                }
+            }
+            return commands.ToString();
+        }
+
+        string CreateDrawCommandsVertical(int[,] grid, string name)
+        {
+            int width = grid.GetLength(0);
+            int height = grid.GetLength(1);
+            StringBuilder commands = new();
+
+            for (int x = 0; x < width; x++)
+            {
+                commands.AppendLine($"; --- col {x} ---");
+                for (int y = 0; y < height;)
+                {
+                    int pNow = grid[x, y];
+
+                    // check for contiguous line
+                    int chunkHeight = 1;
+
+                    for (int l = y + 1; l < height; l++)
+                    {
+                        Debug.WriteLine($"l:{l} x:{x} y:{y} w:{width} h:{height}");
+                        int pNext = grid[x, l];
+
+                        if (pNext == pNow)
+                        {
+                            chunkHeight++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    if (chunkHeight < 2)
+                    {
+                        commands.AppendLine($"\t$_screen.draw_point($x+{x},$y+{y},$_c{pNow})");
+                        y++;
+                    }
+                    else
+                    {
+                        commands.AppendLine($"\t$_screen.draw_line($x+{x},$y+{y}, $x+{x},$y+{y+chunkHeight}, $_c{pNow}) ; line {chunkHeight} ");
+                        y += chunkHeight;
+                    }
+
                 }
             }
             return commands.ToString();
