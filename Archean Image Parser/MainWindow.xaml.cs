@@ -101,7 +101,7 @@ namespace Archean_Image_Parser
 
             if (int.TryParse(text, out int bright))
             {
-                bright = Math.Clamp(bright, 1, 100);
+                bright = Math.Clamp(bright, 1, 200);
                 Debug.WriteLine("Brightness set to " + bright);
             }
             else
@@ -233,9 +233,9 @@ namespace Archean_Image_Parser
             float brightR = (float)brightnessRed / 100f;
             float brightG = (float)brightnessGreen / 100f;
             float brightB = (float)brightnessBlue / 100f;
-            int R = (int)(pColor.R * brightR);
-            int G = (int)(pColor.G * brightG);
-            int B = (int)(pColor.B * brightB);
+            int R = Math.Clamp( (int)(pColor.R * brightR),0,255);
+            int G = Math.Clamp( (int)(pColor.G * brightG), 0, 255);
+            int B = Math.Clamp( (int)(pColor.B * brightB), 0, 255);
 
             return $"color({R},{G},{B},{pColor.A})";
         }
