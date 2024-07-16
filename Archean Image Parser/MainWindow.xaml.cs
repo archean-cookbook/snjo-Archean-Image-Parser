@@ -39,12 +39,26 @@ namespace Archean_Image_Parser
         {
             Debug.WriteLine("Open load image");
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Image Files(*.PNG;*.BMP;*.JPG;*.GIF)|*.PNG;*.BMP;*.JPG;*.GIF|All files (*.*)|*.*";
             bool? result = openFileDialog.ShowDialog();
             if (result != null && result == true)
             {
+                Bitmap? bitmapFromFile = null;
                 loadFileName = openFileDialog.FileName;
                 Debug.WriteLine($"Load file: {loadFileName}");
-                Bitmap bitmapFromFile = new Bitmap(loadFileName);
+                try
+                {
+                    bitmapFromFile = new Bitmap(loadFileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error loading image: {loadFileName}.\nCheck that this is a valid image file.\n\n{ex}");
+                }
+                
+                if (bitmapFromFile == null)
+                {
+                    return;
+                }
                 bitmap = CopyImage(bitmapFromFile);
                 bitmapFromFile.Dispose(); // Releases the bitmap file so it can be saved to outside this program.
 
