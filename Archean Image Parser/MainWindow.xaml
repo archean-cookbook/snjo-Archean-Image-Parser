@@ -13,17 +13,24 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Height="35">
-            <Button x:Name="ButtonLoadImage" Content="Load image" Width="100" Margin="5" Click="ButtonLoadImage_Click"></Button>
-            <Button x:Name="ButtonProcessHorizontal" Content="Process as lines, Horizontal" Width="150" Margin="5" Click="ProcessHorizontal_Click"></Button>
-            <Button x:Name="ButtonProcessVertical" Content="Process as lines, Vertical" Width="150" Margin="5" Click="ProcessVertical_Click"></Button>
-            <Button x:Name="ButtonProcessRect" Content="Process as Rectangles" Width="150" Margin="5" Click="ProcessRect_Click"></Button>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="5,5,5,5"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button x:Name="ButtonLoadImage" Content=" Load image " Click="ButtonLoadImage_Click"></Button>
+            <Button x:Name="ButtonProcessRect" Content=" Process as Rectangles (recommended) " Click="ProcessRect_Click"></Button>
+            <Rectangle Width="50"/>
+            <Button x:Name="ButtonProcessHorizontal" Content=" Process as lines, Horizontal " Click="ProcessHorizontal_Click"></Button>
+            <Button x:Name="ButtonProcessVertical" Content=" Process as lines, Vertical " Click="ProcessVertical_Click"></Button>
+            
         </StackPanel>
-        <Border Grid.Row="1" Background="red" Padding="10">
+        <Border Grid.Row="1" Background="Gray" Padding="2">
             <StackPanel  Orientation="Horizontal" Background="Gray">
-                <TextBlock Text="  Image  " VerticalAlignment="Center" FontSize="15" Foreground="white"/>
-                <Image x:Name="SourceImageView" Width="100"></Image>
-                <Rectangle Width="50"/>
+                
+                
+                <Rectangle Width="10"/>
                 
                 
 
@@ -47,6 +54,10 @@
                         <TextBlock  Grid.Column="0" Grid.Row ="2" Text="Brightness B (1-100)" VerticalAlignment="Center" Foreground="white"/>
                         <TextBox  Grid.Column="1" Grid.Row ="2" x:Name="BrightnessAdjustBlue" Height="20" Width="50" TextAlignment="Center" Background="LightBlue">100</TextBox>
                     </Grid>
+                <Rectangle Width="10"/>
+                <TextBlock Text="Image:" VerticalAlignment="Center" FontSize="15" Foreground="white"/>
+                <Rectangle Width="20"/>
+                <Image x:Name="SourceImageView" Width="100"></Image>
                 
             </StackPanel>
         </Border>
