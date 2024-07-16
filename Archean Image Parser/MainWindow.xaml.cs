@@ -399,7 +399,7 @@ namespace Archean_Image_Parser
 
             for (int y = 0; y < height; y++)
             {
-                commands.AppendLine($"; --- row {y} ---");
+                // commands.AppendLine($"; --- row {y} ---");
                 for (int x = 0; x < width;)
                 {
                     int pNow = grid[x, y];
@@ -445,7 +445,7 @@ namespace Archean_Image_Parser
 
             for (int x = 0; x < width; x++)
             {
-                commands.AppendLine($"; --- col {x} ---");
+                // commands.AppendLine($"; --- col {x} ---");
                 for (int y = 0; y < height;)
                 {
                     int pNow = grid[x, y];
