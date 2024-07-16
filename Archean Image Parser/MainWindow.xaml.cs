@@ -15,15 +15,13 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
 
 namespace Archean_Image_Parser
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         Bitmap? bitmap = null;
@@ -43,29 +41,43 @@ namespace Archean_Image_Parser
             {
                 loadFileName = openFileDialog.FileName;
                 Debug.WriteLine($"Load file: {loadFileName}");
-                //Uri uri = new Uri(loadFileName);
-                //bitmap = new BitmapImage(uri);
-                bitmap = new Bitmap(loadFileName);
+                Bitmap bitmapFromFile = new Bitmap(loadFileName);
+                bitmap = CopyImage(bitmapFromFile);
+                bitmapFromFile.Dispose(); // Releases the bitmap file so it can be saved to outside this program.
+
                 SourceImageView.Source = CreateBitmapSourceFromGdiBitmap(bitmap);
                 SourceImageView.Width = bitmap.Width;
                 SourceImageView.Height = bitmap.Height;
             }
         }
 
-        private void ButtonProcessImageH_Click(object sender, RoutedEventArgs e)
+        private enum ProcessingMode
         {
-            ProcessImage(true);
+            horizontal,
+            vertical,
+            rect,
         }
 
-        private void ButtonProcessImageV_Click(object sender, RoutedEventArgs e)
+        private void ProcessHorizontal_Click(object sender, RoutedEventArgs e)
         {
-            ProcessImage(false);
+            ProcessImage(ProcessingMode.horizontal);
         }
 
-        private void ProcessImage(bool horizontal)
+        private void ProcessVertical_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessImage(ProcessingMode.vertical);
+        }
+
+        private void ProcessRect_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessImage(ProcessingMode.rect);
+        }
+
+        private void ProcessImage(ProcessingMode processingMode)
         {
             string commands = string.Empty;
             int[,]? pixelGrid;
+            palette.Clear();
             Debug.WriteLine("Process image");
             if (bitmap != null)
             {
@@ -98,18 +110,12 @@ namespace Archean_Image_Parser
                     
                 }
                 TextBoxGrid.Text = MakePixelGrid(pixelGrid);
-                commands = CreateCommands(pixelGrid, System.IO.Path.GetFileNameWithoutExtension(loadFileName),horizontal);
+                commands = CreateCommands(pixelGrid, System.IO.Path.GetFileNameWithoutExtension(loadFileName),processingMode);
                 // PrintPalette();
                 
                 // Debug.WriteLine(commands);
                 TextBoxCommands.Text = commands;
             }
-        }
-
-        void PrintPixelGrid(int[,] grid)
-        {
-            Debug.WriteLine("---");
-            Debug.WriteLine(MakePixelGrid(grid));
         }
 
         string MakePixelGrid(int[,] grid)
@@ -122,14 +128,18 @@ namespace Archean_Image_Parser
             {
                 for (int x = 0;x < width; x++)
                 {
+                    int pcol = grid[x, y];
+                    string pText = pcol.ToString();
+                    if (palette[pcol].A == 0)
+                        pText = " ";
                     // Debug.WriteLine($"x{x} y{y}");
                     if (palette.Count > 10)
                     {
-                        result.Append((grid[x, y]).ToString().PadLeft(4));
+                        result.Append(pText.PadLeft(4));
                     }
                     else
                     {
-                        result.Append(grid[x, y]);
+                        result.Append(pText);
                     }
                 }
                 result.AppendLine();
@@ -200,7 +210,7 @@ namespace Archean_Image_Parser
             return $"color({pColor.R},{pColor.G},{pColor.B},{pColor.A})";
         }
 
-        string CreateCommands(int[,] grid, string name,bool horizontal)
+        string CreateCommands(int[,] grid, string name,ProcessingMode processingMode)
         {
             StringBuilder commands = new();
             commands.AppendLine($"function @sprite_{name}($_screen:screen,$x:number,$y:number)");
@@ -210,20 +220,133 @@ namespace Archean_Image_Parser
                 commands.AppendLine($"\tvar $_c{p} = {archColor}");
             }
 
-            if (horizontal)
+            if (processingMode == ProcessingMode.horizontal)
             {
                 commands.AppendLine(CreateDrawCommandsHorizontal(grid, name));
             }
-            else
+            else if (processingMode == ProcessingMode.vertical)
             {
                 commands.AppendLine(CreateDrawCommandsVertical(grid, name));
             }
-            //commands.AppendLine(CreateDrawCommandsRect(grid, name));
+            else if (processingMode == ProcessingMode.rect)
+            {
+                commands.AppendLine(CreateDrawCommandsRect(grid, name));
+            }
+            
 
             return commands.ToString();
         }
 
+        int ColumnColorHeight(int[,] grid, int x, int y)
+        {
+            bool foundMismatch = false;
+            int height = 0;
+            int sourcePalette = grid[x, y];
+            int gridHeight = grid.GetLength(1);
+            while (!foundMismatch && y < gridHeight)
+            {
+                //Debug.WriteLine($"column x:{x} y:{y} source:{sourcePalette}");
+                int foundPalette = grid[x, y];
+                if (foundPalette != sourcePalette)
+                {
+                    foundMismatch = true;
+                    break;
+                }
+                y++;
+                height++;
+            }
+            //Debug.WriteLine($"column result h:{height}");
+            return height;
+        }
+
+        (int width,int height) Chunk(int[,] grid, int x, int y)
+        {
+            int width = 0;
+            int height = 0;
+            int sourcePalette = grid[x, y];
+            bool foundMismatch = false;
+            int gridWidth = grid.GetLength(0);
+            while (!foundMismatch && x < gridWidth)
+            {
+                //Debug.WriteLine($"   chunk x:{x} y:{y} w:{width} h:{height}  source:{sourcePalette}");
+                int foundPalette = grid[x, y];
+                if (foundPalette != sourcePalette)
+                {
+                    //Debug.WriteLine($"mismatch at x:{x} y:{y} w:{width} h:{height}");
+                    foundMismatch = true;
+                    break;
+                }
+                int h = ColumnColorHeight(grid, x, y);
+                if (h < height)
+                {
+                    //Debug.WriteLine($"too short, aborting at x:{x} y:{y} w:{width} h:{height}");
+                    foundMismatch = true;
+                    break;
+                }
+                else
+                {
+                    height = h;
+                }
+                x++;
+                width++;
+            }
+            //Debug.WriteLine($"chunk result w:{width} h:{height}\n");
+            return (width, height);
+        }
+
+        void RemoveChunkedPixelsFromGrid(int[,] grid, int x, int y, int right, int bottom)
+        {
+            for (int sx = x; sx < right; sx++)
+            {
+                for (int sy = y; sy < bottom; sy++)
+                {
+                    grid[sx, sy] = -1;
+                    //Debug.WriteLine($"blank {sx} {sy}");
+                }
+            }
+        }
+
         string CreateDrawCommandsRect(int[,] grid, string name)
+        {
+            int width = grid.GetLength(0);
+            int height = grid.GetLength(1);
+            StringBuilder commands = new();
+
+            //int x = 0;
+            // int y = 0;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    
+                    int paletteNum = grid[x, y];
+                    //Debug.WriteLine($"starting chunks, x:{x} y:{y} paletteNum{paletteNum}");
+                    
+                    if (paletteNum < 0)
+                    {
+                        //Debug.WriteLine($"skip -1: {x} {y}");
+                        continue;
+                    }
+                    int alpha = palette[paletteNum].A;
+                    if (alpha == 0)
+                    {
+                        //Debug.WriteLine($"skip 0 alpha: {x} {y}");
+                    }
+                    else
+                    {
+                        (int w, int h) chunkDim = Chunk(grid, x, y);
+                        RemoveChunkedPixelsFromGrid(grid, x, y, x + chunkDim.w, y + chunkDim.h);
+                        //commands.AppendLine($"x:{x} y:{y} chunk:{chunkDim}");
+                        commands.AppendLine($"\t$_screen.draw_rect($x+{x},$y+{y},$x+{x + chunkDim.w},$y+{y + chunkDim.h},0,$_c{paletteNum}) ; w{chunkDim.w} h{chunkDim.h}");
+                        //Debug.WriteLine($"end chunks {chunkDim}");
+                    }
+                }
+            }
+
+            return commands.ToString();
+        }
+
+        string CreateDrawCommandsRectOLD(int[,] grid, string name)
         {
             int width = grid.GetLength(0);
             int height = grid.GetLength(1);
@@ -371,7 +494,6 @@ namespace Archean_Image_Parser
 
                     for (int l = y + 1; l < height; l++)
                     {
-                        Debug.WriteLine($"l:{l} x:{x} y:{y} w:{width} h:{height}");
                         int pNext = grid[x, l];
 
                         if (pNext == pNow)
@@ -398,6 +520,19 @@ namespace Archean_Image_Parser
                 }
             }
             return commands.ToString();
+        }
+
+        public static Bitmap CopyImage(Bitmap img)
+        {
+            System.Drawing.Rectangle cropArea = new(0, 0, img.Width, img.Height);
+            //https://www.codingdefined.com/2015/04/solved-bitmapclone-out-of-memory.html
+            Bitmap bmp = new(cropArea.Width, cropArea.Height);
+
+            using (Graphics gph = Graphics.FromImage(bmp))
+            {
+                gph.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
+            }
+            return bmp;
         }
     }
 }
