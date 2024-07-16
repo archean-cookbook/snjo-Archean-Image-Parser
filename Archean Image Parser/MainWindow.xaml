@@ -19,10 +19,37 @@
             <Button x:Name="ButtonProcessVertical" Content="Process as lines, Vertical" Width="150" Margin="5" Click="ProcessVertical_Click"></Button>
             <Button x:Name="ButtonProcessRect" Content="Process as Rectangles" Width="150" Margin="5" Click="ProcessRect_Click"></Button>
         </StackPanel>
-        <Border Grid.Row="1" Background="Gray">
-            <Image x:Name="SourceImageView" Width="100" Height="100"></Image>
-        </Border>
+        <Border Grid.Row="1" Background="red" Padding="10">
+            <StackPanel  Orientation="Horizontal" Background="Gray">
+                <TextBlock Text="  Image  " VerticalAlignment="Center" FontSize="15" Foreground="white"/>
+                <Image x:Name="SourceImageView" Width="100"></Image>
+                <Rectangle Width="50"/>
+                
+                
 
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="60"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock  Grid.Column="0" Grid.Row ="0" Text="Brightness R (1-100)" VerticalAlignment="Center" Foreground="white"/>
+                        <TextBox  Grid.Column="1" Grid.Row ="0" x:Name="BrightnessAdjustRed" Height="20" Width="50" TextAlignment="Center" Background="Pink">100</TextBox>
+                        
+                        <TextBlock  Grid.Column="0" Grid.Row ="1" Text="Brightness G (1-100)" VerticalAlignment="Center" Foreground="white"/>
+                        <TextBox  Grid.Column="1" Grid.Row ="1" x:Name="BrightnessAdjustGreen" Height="20" Width="50" TextAlignment="Center" Background="LightGreen">100</TextBox>
+                        
+                        <TextBlock  Grid.Column="0" Grid.Row ="2" Text="Brightness B (1-100)" VerticalAlignment="Center" Foreground="white"/>
+                        <TextBox  Grid.Column="1" Grid.Row ="2" x:Name="BrightnessAdjustBlue" Height="20" Width="50" TextAlignment="Center" Background="LightBlue">100</TextBox>
+                    </Grid>
+                
+            </StackPanel>
+        </Border>
         <Grid Grid.Row="2" Background="Gray">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>

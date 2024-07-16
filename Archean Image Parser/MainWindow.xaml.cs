@@ -27,6 +27,9 @@ namespace Archean_Image_Parser
         Bitmap? bitmap = null;
         string loadFileName = "";
         List<System.Drawing.Color> palette = [];
+        int brightnessRed = 100;
+        int brightnessGreen = 100;
+        int brightnessBlue = 100;
         public MainWindow()
         {
             InitializeComponent();
@@ -73,8 +76,42 @@ namespace Archean_Image_Parser
             ProcessImage(ProcessingMode.rect);
         }
 
+        int GetBrightness(string color)
+        {
+            //int bright = 100;
+            string text = "100";
+            switch (color)
+            {
+                case "Red":
+                    text = BrightnessAdjustRed.Text;
+                    break;
+                case "Green":
+                    text = BrightnessAdjustGreen.Text;
+                    break;
+                case "Blue":
+                    text = BrightnessAdjustBlue.Text;
+                    break;
+            }
+
+                
+            if (int.TryParse(text, out int bright))
+            {
+                bright = Math.Clamp(bright, 1, 100);
+                Debug.WriteLine("Brightness set to " + bright);
+            }
+            else
+            {
+                bright = 100;
+                Debug.WriteLine("Brightness set to default " + bright);
+            }
+            return bright;
+        }
+
         private void ProcessImage(ProcessingMode processingMode)
         {
+            brightnessRed = GetBrightness("Red");
+            brightnessGreen = GetBrightness("Green");
+            brightnessBlue = GetBrightness("Blue");
             string commands = string.Empty;
             int[,]? pixelGrid;
             palette.Clear();
@@ -207,7 +244,14 @@ namespace Archean_Image_Parser
         string PaletteToColorFunction(int paletteNumber)
         {
             System.Drawing.Color pColor = palette[paletteNumber];
-            return $"color({pColor.R},{pColor.G},{pColor.B},{pColor.A})";
+            float brightR = (float)brightnessRed / 100f;
+            float brightG = (float)brightnessGreen / 100f;
+            float brightB = (float)brightnessBlue / 100f;
+            int R = (int)(pColor.R * brightR);
+            int G = (int)(pColor.G * brightG);
+            int B = (int)(pColor.B * brightB);
+
+            return $"color({R},{G},{B},{pColor.A})";
         }
 
         string CreateCommands(int[,] grid, string name,ProcessingMode processingMode)
