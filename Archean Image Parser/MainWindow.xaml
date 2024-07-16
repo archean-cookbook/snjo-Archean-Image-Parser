@@ -46,13 +46,13 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock  Grid.Column="0" Grid.Row ="0" Text="Brightness R (1-100)" VerticalAlignment="Center" Foreground="white"/>
-                        <TextBox  Grid.Column="1" Grid.Row ="0" x:Name="BrightnessAdjustRed" Height="20" Width="50" TextAlignment="Center" Background="Pink">100</TextBox>
+                    <TextBox  Grid.Column="1" Grid.Row ="0" x:Name="BrightnessAdjustRed" Height="20" Width="50" TextAlignment="Center" Background="Pink">60</TextBox>
                         
                         <TextBlock  Grid.Column="0" Grid.Row ="1" Text="Brightness G (1-100)" VerticalAlignment="Center" Foreground="white"/>
-                        <TextBox  Grid.Column="1" Grid.Row ="1" x:Name="BrightnessAdjustGreen" Height="20" Width="50" TextAlignment="Center" Background="LightGreen">100</TextBox>
+                    <TextBox  Grid.Column="1" Grid.Row ="1" x:Name="BrightnessAdjustGreen" Height="20" Width="50" TextAlignment="Center" Background="LightGreen">60</TextBox>
                         
                         <TextBlock  Grid.Column="0" Grid.Row ="2" Text="Brightness B (1-100)" VerticalAlignment="Center" Foreground="white"/>
-                        <TextBox  Grid.Column="1" Grid.Row ="2" x:Name="BrightnessAdjustBlue" Height="20" Width="50" TextAlignment="Center" Background="LightBlue">100</TextBox>
+                    <TextBox  Grid.Column="1" Grid.Row ="2" x:Name="BrightnessAdjustBlue" Height="20" Width="50" TextAlignment="Center" Background="LightBlue">60</TextBox>
                     </Grid>
                 <Rectangle Width="10"/>
                 <TextBlock Text="Image:" VerticalAlignment="Center" FontSize="15" Foreground="white"/>

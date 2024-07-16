@@ -310,6 +310,10 @@ namespace Archean_Image_Parser
                     break;
                 }
                 int h = ColumnColorHeight(grid, x, y);
+                if (width == 0)
+                {
+                    height = h;
+                }
                 if (h < height)
                 {
                     //foundMismatch = true;
@@ -317,7 +321,7 @@ namespace Archean_Image_Parser
                 }
                 else
                 {
-                    height = h;
+                    height = Math.Min(h,height);
                 }
                 x++;
                 width++;
