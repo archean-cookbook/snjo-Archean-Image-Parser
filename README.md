@@ -17,3 +17,8 @@ When converting an existing image like a photo with a wide range of colors, try 
 
 The finished function draws the points, lines and rects to a screen. If you use one hidden screen as your sprite storage, you can then copy that sprite region to your main screen on demand.
 That way you only have to use the heavy generated function once for each image, and use the sprite library screen -> main screen copy when you need to draw it.
+
+## Pixel grid
+
+The left text box outputs all the pixels in the image as numbers in a grid. Use this data if you're writing your own image processing code and just want the pixel data from an image.
+Spaces are transparent values.
