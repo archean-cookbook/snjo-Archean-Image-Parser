@@ -337,7 +337,22 @@ namespace Archean_Image_Parser
                         (int w, int h) chunkDim = Chunk(grid, x, y);
                         RemoveChunkedPixelsFromGrid(grid, x, y, x + chunkDim.w, y + chunkDim.h);
                         //commands.AppendLine($"x:{x} y:{y} chunk:{chunkDim}");
-                        commands.AppendLine($"\t$_screen.draw_rect($x+{x},$y+{y},$x+{x + chunkDim.w},$y+{y + chunkDim.h},0,$_c{paletteNum}) ; w{chunkDim.w} h{chunkDim.h}");
+                        if (chunkDim.w == 1 && chunkDim.h == 1)
+                        {
+                            commands.AppendLine($"\t$_screen.draw_point($x+{x},$y+{y},$_c{paletteNum})");
+                        }
+                        else if (chunkDim.w == 1) // vertical
+                        {
+                            commands.AppendLine($"\t$_screen.draw_line($x+{x},$y+{y},$x+{x},$y+{y + chunkDim.h},$_c{paletteNum}) ; line vertical h{chunkDim.h}");
+                        }
+                        else if (chunkDim.h == 1) // vertical
+                        {
+                            commands.AppendLine($"\t$_screen.draw_line($x+{x},$y+{y},$x+{x + chunkDim.w},$y+{y},$_c{paletteNum}) ; line horizontal w{chunkDim.w}");
+                        }
+                        else
+                        {
+                            commands.AppendLine($"\t$_screen.draw_rect($x+{x},$y+{y},$x+{x + chunkDim.w},$y+{y + chunkDim.h},0,$_c{paletteNum}) ; w{chunkDim.w} h{chunkDim.h}");
+                        }
                         //Debug.WriteLine($"end chunks {chunkDim}");
                     }
                 }
