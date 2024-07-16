@@ -1,6 +1,14 @@
-Requires .net 8
-
+## Archean image parser
 Parses an image and outputs a xenoncode draw function for Archean computers.
+
+## Use
+- Load an image. I recommend a small image with areas of identical color if you want the best performance out of the function in game.
+- Click Process as Rectangles (suitable for most uses)
+- Copy the function from the textbox to the right into an archean computer
+- Call on the generated function in your normal program.
+- If the image is too bright or too dark, use the Brightness values in the program and generate the code again to update the color palette. By default the values are darker than the source image to combat overly bright colors on Archean computers
+
+## Details
 The image will be processed into a grid where each number is a color value from a generated palette.
 This grid is then used to simplify the draw calls to lines and rectangles if there's a contiguous set of pixels with the same palette color.
 
