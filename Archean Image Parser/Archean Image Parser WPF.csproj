@@ -19,11 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.7" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Archean Image Parser Class Library\Archean Image Parser Class Library.csproj" />
+    <ProjectReference Include="..\Archean Image Parser Class Library\ParseLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

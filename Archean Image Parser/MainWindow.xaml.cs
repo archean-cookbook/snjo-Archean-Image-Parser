@@ -1,12 +1,11 @@
-﻿using Microsoft.Win32;
+﻿using ParseLib;
+using Microsoft.Win32;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Archean_Image_Parser_Class_Library;
 
 namespace Archean_Image_Parser
 {
@@ -32,13 +31,17 @@ namespace Archean_Image_Parser
 
             if (result != null && result == true)
             {
-                parser.LoadImage(openFileDialog.FileName);
 
-                if (parser.bitmap != null)
+
+                if (parser.LoadImage(openFileDialog.FileName))
                 {
-                    SourceImageView.Source = CreateBitmapSourceFromGdiBitmap(parser.bitmap); // dumb WFP image
-                    SourceImageView.Width = parser.bitmap.Width;
-                    SourceImageView.Height = parser.bitmap.Height;
+
+                    BitmapImage thumbnail = new BitmapImage();
+                    thumbnail.BeginInit();
+                    thumbnail.CacheOption = BitmapCacheOption.OnLoad;
+                    thumbnail.UriSource = new Uri(openFileDialog.FileName);
+                    thumbnail.EndInit();
+                    SourceImageView.Source = thumbnail;
                 }
             }
         }

@@ -57,7 +57,7 @@
                 <Rectangle Width="10"/>
                 <TextBlock Text="Image:" VerticalAlignment="Center" FontSize="15" Foreground="white"/>
                 <Rectangle Width="20"/>
-                <Image x:Name="SourceImageView" Width="100"></Image>
+                <Image x:Name="SourceImageView" Width="200" RenderOptions.BitmapScalingMode="NearestNeighbor"></Image>
                 
             </StackPanel>
         </Border>

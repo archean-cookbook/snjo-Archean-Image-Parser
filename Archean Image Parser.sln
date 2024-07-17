@@ -5,9 +5,9 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Archean Image Parser WPF", "Archean Image Parser\Archean Image Parser WPF.csproj", "{9C0A62E8-1EEF-4F9E-BD2A-F23E89DDC077}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Archean Image Parser Console", "Archean Image Parser Console\Archean Image Parser Console.csproj", "{D6D4ECFA-F281-4E1E-A047-774E9763BCA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Archean Image Parser Console", "Archean Image Parser Console\Archean Image Parser Console.csproj", "{D6D4ECFA-F281-4E1E-A047-774E9763BCA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Archean Image Parser Class Library", "Archean Image Parser Class Library\Archean Image Parser Class Library.csproj", "{C2332908-FB11-4CC6-8D27-7540F98837A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParseLib", "Archean Image Parser Class Library\ParseLib.csproj", "{C2332908-FB11-4CC6-8D27-7540F98837A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

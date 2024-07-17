@@ -1,18 +1,18 @@
-﻿using Microsoft.Win32;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
+//using System.Drawing;
+//using System.Drawing.Imaging;
 using System.Text;
-using SixLabors.ImageSharp;
 
 
-namespace Archean_Image_Parser_Class_Library
+namespace ParseLib
 {
     public class Parser
     {
-        public Bitmap? bitmap = null;
+        public Image<Rgba32>? bitmap = null;
         public string loadFileName = "";
-        readonly List<System.Drawing.Color> palette = [];
+        readonly List<Rgba32> palette = new List<Rgba32>();
 
         int BrightnessRed = 100;
         int BrightnessGreen = 100;
@@ -27,13 +27,13 @@ namespace Archean_Image_Parser_Class_Library
 
         public bool LoadImage(string fileName)
         {
-            Bitmap? bitmapFromFile;
+            Image<Rgba32>? bitmapFromFile;
             loadFileName = fileName;
             Debug.WriteLine($"Load file: {loadFileName}");
             try
             {
                 //bitmapFromFile = new Bitmap(loadFileName);
-                bitmapFromFile = new Bitmap(loadFileName);
+                bitmapFromFile = Image.Load<Rgba32>(loadFileName);
             }
             catch (Exception ex)
             {
@@ -42,8 +42,9 @@ namespace Archean_Image_Parser_Class_Library
             }
 
 
-            bitmap = Parser.CopyImage(bitmapFromFile); // Make a copy of the bitmap so it's not tied to the file.
-            bitmapFromFile.Dispose(); // Releases the bitmap file so it can be saved to outside this program.
+            //bitmap = Parser.CopyImage(bitmapFromFile); // Make a copy of the bitmap so it's not tied to the file.
+            bitmap = bitmapFromFile;
+            //bitmapFromFile.Dispose(); // Releases the bitmap file so it can be saved to outside this program.
             return true;
         }
 
@@ -65,7 +66,11 @@ namespace Archean_Image_Parser_Class_Library
                 {
                     for (int x = 0; x < bitmap.Width; x++)
                     {
-                        System.Drawing.Color color = bitmap.GetPixel(x, y);
+                        //System.Drawing.Color color = bitmap.GetPixel(x, y);
+
+                        Rgba32 color = bitmap[x, y];
+
+
                         int match = -1;
                         int paletteNumber;
                         for (int i = 0; i < palette.Count; i++)
@@ -122,7 +127,7 @@ namespace Archean_Image_Parser_Class_Library
         //    return result.ToString();
         //}
 
-        
+
 
         //uint PaletteToArchColor(int paletteNumber)
         //{
@@ -136,7 +141,7 @@ namespace Archean_Image_Parser_Class_Library
 
         string PaletteToColorFunction(int paletteNumber)
         {
-            System.Drawing.Color pColor = palette[paletteNumber];
+            Rgba32 pColor = palette[paletteNumber];
             float brightR = (float)BrightnessRed / 100f;
             float brightG = (float)BrightnessGreen / 100f;
             float brightB = (float)BrightnessBlue / 100f;
@@ -390,18 +395,18 @@ namespace Archean_Image_Parser_Class_Library
             return commands.ToString();
         }
 
-        public static Bitmap CopyImage(Bitmap img)
-        {
-            System.Drawing.Rectangle cropArea = new(0, 0, img.Width, img.Height);
-            //https://www.codingdefined.com/2015/04/solved-bitmapclone-out-of-memory.html
-            Bitmap bmp = new(cropArea.Width, cropArea.Height);
+        //public static Bitmap CopyImage(Bitmap img)
+        //{
+        //    System.Drawing.Rectangle cropArea = new(0, 0, img.Width, img.Height);
+        //    //https://www.codingdefined.com/2015/04/solved-bitmapclone-out-of-memory.html
+        //    Bitmap bmp = new(cropArea.Width, cropArea.Height);
 
-            using (Graphics gph = Graphics.FromImage(bmp))
-            {
-                gph.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
-            }
-            return bmp;
-        }
+        //    using (Graphics gph = Graphics.FromImage(bmp))
+        //    {
+        //        gph.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
+        //    }
+        //    return bmp;
+        //}
 
         public static int ColumnColorHeight(int[,] grid, int x, int y)
         {
