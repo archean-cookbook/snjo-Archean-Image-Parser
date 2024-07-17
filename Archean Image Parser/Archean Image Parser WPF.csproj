@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Archean Image Parser Class Library\Archean Image Parser Class Library.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="icon.png" />
   </ItemGroup>
 

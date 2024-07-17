@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Archean Image Parser", "Archean Image Parser\Archean Image Parser.csproj", "{9C0A62E8-1EEF-4F9E-BD2A-F23E89DDC077}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Archean Image Parser WPF", "Archean Image Parser\Archean Image Parser WPF.csproj", "{9C0A62E8-1EEF-4F9E-BD2A-F23E89DDC077}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Archean Image Parser Console", "Archean Image Parser Console\Archean Image Parser Console.csproj", "{D6D4ECFA-F281-4E1E-A047-774E9763BCA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Archean Image Parser Class Library", "Archean Image Parser Class Library\Archean Image Parser Class Library.csproj", "{C2332908-FB11-4CC6-8D27-7540F98837A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{9C0A62E8-1EEF-4F9E-BD2A-F23E89DDC077}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C0A62E8-1EEF-4F9E-BD2A-F23E89DDC077}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C0A62E8-1EEF-4F9E-BD2A-F23E89DDC077}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6D4ECFA-F281-4E1E-A047-774E9763BCA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6D4ECFA-F281-4E1E-A047-774E9763BCA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6D4ECFA-F281-4E1E-A047-774E9763BCA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6D4ECFA-F281-4E1E-A047-774E9763BCA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2332908-FB11-4CC6-8D27-7540F98837A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2332908-FB11-4CC6-8D27-7540F98837A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2332908-FB11-4CC6-8D27-7540F98837A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2332908-FB11-4CC6-8D27-7540F98837A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
