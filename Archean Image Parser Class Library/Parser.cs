@@ -13,6 +13,7 @@ namespace ParseLib
         public Image<Rgba32>? bitmap = null;
         public string loadFileName = "";
         readonly List<Rgba32> palette = new List<Rgba32>();
+        int[,]? pixelGrid;
 
         int BrightnessRed = 100;
         int BrightnessGreen = 100;
@@ -23,9 +24,23 @@ namespace ParseLib
             horizontal,
             vertical,
             rect,
+            grid,
         }
 
-        public bool LoadImage(string fileName)
+        public enum ErrorCodes
+        {
+            OK = 0,
+            Quit = 1,
+            FileNotFound = 2,
+            FileError = 3,
+            ImageError = 4,
+            ProcessingError = 5,
+            OutputFileError = 6,
+            TooFewArguments = 7,
+            InvalidArguments = 8,
+        }
+
+        public bool LoadImage(string fileName, bool includeException = false)
         {
             Image<Rgba32>? bitmapFromFile;
             loadFileName = fileName;
@@ -37,7 +52,17 @@ namespace ParseLib
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading image: {loadFileName}.\nCheck that this is a valid image file.\n\n{ex}");
+                Console.WriteLine($"Error loading image: {loadFileName}");
+                Console.WriteLine($"Check that this is a valid image file.");
+                if (ex is SixLabors.ImageSharp.UnknownImageFormatException)
+                {
+                    Console.WriteLine("Available image formats:\r\n - BMP\r\n - QOI\r\n - JPEG\r\n - Webp\r\n - PNG\r\n - TGA\r\n - TIFF\r\n - GIF\r\n - PBM");
+                }
+                if (includeException)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine(ex.ToString());
+                }
                 return false;
             }
 
@@ -55,7 +80,7 @@ namespace ParseLib
             BrightnessGreen = brightnessGreen;
             BrightnessBlue = brightnessBlue;
             string commands;
-            int[,]? pixelGrid;
+            //int[,]? pixelGrid;
             palette.Clear();
 
             // Build color palette and pixel grid
@@ -100,32 +125,36 @@ namespace ParseLib
             return null;
         }
 
-        //string MakePixelGrid(int[,] grid)
-        //{
-        //    StringBuilder result = new();
-        //    int width = grid.GetLength(0);
-        //    int height = grid.GetLength(1);
-        //    for (int y = 0; y < height; y++)
-        //    {
-        //        for (int x = 0; x < width; x++)
-        //        {
-        //            int pcol = grid[x, y];
-        //            string pText = pcol.ToString();
-        //            if (palette[pcol].A == 0)
-        //                pText = " ";
-        //            if (palette.Count > 10)
-        //            {
-        //                result.Append(pText.PadLeft(4));
-        //            }
-        //            else
-        //            {
-        //                result.Append(pText);
-        //            }
-        //        }
-        //        result.AppendLine();
-        //    }
-        //    return result.ToString();
-        //}
+        public string MakePixelGrid(int[,] grid)
+        {
+            if (pixelGrid == null)
+            {
+                return "";
+            }
+            StringBuilder result = new();
+            int width = grid.GetLength(0);
+            int height = grid.GetLength(1);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int pcol = grid[x, y];
+                    string pText = pcol.ToString();
+                    if (palette[pcol].A == 0)
+                        pText = ".";
+                    if (palette.Count > 10)
+                    {
+                        result.Append(pText.PadLeft(4));
+                    }
+                    else
+                    {
+                        result.Append(pText);
+                    }
+                }
+                result.AppendLine();
+            }
+            return result.ToString();
+        }
 
 
 
@@ -178,31 +207,14 @@ namespace ParseLib
             {
                 commands.AppendLine(CreateDrawCommandsRect(grid)); //,name)
             }
+            else if (processingMode == ProcessingMode.grid)
+            {
+                commands.AppendLine();
+                commands.AppendLine(MakePixelGrid(grid));
+            }
 
             return commands.ToString();
         }
-
-        //static int ColumnColorHeight(int[,] grid, int x, int y)
-        //{
-        //    // check for length of unbroken identically colored pixels in a column
-        //    //bool foundMismatch = false;
-        //    int height = 0;
-        //    int sourcePalette = grid[x, y];
-        //    int gridHeight = grid.GetLength(1);
-        //    //while (!foundMismatch && y < gridHeight)
-        //    while (y < gridHeight)
-        //    {
-        //        int foundPalette = grid[x, y];
-        //        if (foundPalette != sourcePalette)
-        //        {
-        //            //foundMismatch = true;
-        //            break;
-        //        }
-        //        y++;
-        //        height++;
-        //    }
-        //    return height;
-        //}
 
         static (int width, int height) Chunk(int[,] grid, int x, int y)
         {
@@ -395,33 +407,20 @@ namespace ParseLib
             return commands.ToString();
         }
 
-        //public static Bitmap CopyImage(Bitmap img)
-        //{
-        //    System.Drawing.Rectangle cropArea = new(0, 0, img.Width, img.Height);
-        //    //https://www.codingdefined.com/2015/04/solved-bitmapclone-out-of-memory.html
-        //    Bitmap bmp = new(cropArea.Width, cropArea.Height);
-
-        //    using (Graphics gph = Graphics.FromImage(bmp))
-        //    {
-        //        gph.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
-        //    }
-        //    return bmp;
-        //}
 
         public static int ColumnColorHeight(int[,] grid, int x, int y)
         {
             // check for length of unbroken identically colored pixels in a column
-            //bool foundMismatch = false;
+
             int height = 0;
             int sourcePalette = grid[x, y];
             int gridHeight = grid.GetLength(1);
-            //while (!foundMismatch && y < gridHeight)
+            
             while (y < gridHeight)
             {
                 int foundPalette = grid[x, y];
                 if (foundPalette != sourcePalette)
                 {
-                    //foundMismatch = true;
                     break;
                 }
                 y++;

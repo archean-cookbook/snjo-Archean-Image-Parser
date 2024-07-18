@@ -6,8 +6,13 @@
     <RootNamespace>Archean_Image_Parser_Console</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>Archean-Image-Parser</AssemblyName>
+    <AssemblyName>ArcheanImageParser</AssemblyName>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Archean Image Parser Class Library\ParseLib.csproj" />
