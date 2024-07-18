@@ -17,6 +17,8 @@ Use -h to display available arguments.
 - Call on the generated function in your normal program.
 - If the image is too bright or too dark, use the Brightness values in the program and generate the code again to update the color palette. By default the values are darker than the source image to combat overly bright colors on Archean computers
 
+![Screenshot](screenshot.png)
+
 ## Details
 The image will be processed into a grid where each number is a color value from a generated palette.
 This grid is then used to simplify the draw calls to lines and rectangles if there's a contiguous set of pixels with the same palette color.
