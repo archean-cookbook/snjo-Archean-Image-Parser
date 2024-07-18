@@ -16,6 +16,7 @@ namespace Archean_Image_Parser_Console
         int BrightnessRed = 60;
         int BrightnessGreen = 60;
         int BrightnessBlue = 60;
+        Parser.ProcessingMode processingMode = Parser.ProcessingMode.rect;
         
         internal Menu()
         {
@@ -90,11 +91,31 @@ namespace Archean_Image_Parser_Console
             }
         }
 
+        private void SelectProcessingMode()
+        {
+            Console.WriteLine("Select processing mode, or press enter/other key for Rectangle mode (recommended)");
+            Console.Write("Rectangle, Horizontal or Vertical (R/H/V): ");
+            ConsoleKey mode = Console.ReadKey().Key;
+            Console.WriteLine();
+            if (mode == ConsoleKey.H)
+            {
+                processingMode = Parser.ProcessingMode.horizontal;
+            }
+            else if (mode == ConsoleKey.V)
+            {
+                processingMode = Parser.ProcessingMode.vertical;
+            }
+            else
+            {
+                processingMode= Parser.ProcessingMode.rect;
+            }
+        }
+
         private void ProcessImage()
         {
             Console.WriteLine();
             Console.WriteLine("Processing image...");
-            resultCommands = parser.ProcessImage(Parser.ProcessingMode.rect, BrightnessRed, BrightnessGreen, BrightnessBlue);
+            resultCommands = parser.ProcessImage(processingMode, BrightnessRed, BrightnessGreen, BrightnessBlue);
             if (resultCommands == null)
             {
                 Console.WriteLine("Error processing image");
@@ -196,6 +217,7 @@ namespace Archean_Image_Parser_Console
             }
             if (LoadImage(imageFileName))
             {
+                SelectProcessingMode();
                 SelectBrightness();
                 ProcessImage();
                 Console.WriteLine();
