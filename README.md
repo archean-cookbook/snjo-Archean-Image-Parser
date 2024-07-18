@@ -10,7 +10,7 @@ The console versions can be used either with command line arguments or in intera
 Use -h to display available arguments.
 
 ## Use
-- Load an image. I recommend a small image with areas of identical color if you want the best performance out of the function in game.
+- Load an image. I recommend a small image with areas of identical color if you want the best performance in game.
 - Click Process as Rectangles (suitable for most uses)
 - Click "Save file" or "Copy to Clipboard".
 - Copy the function from the textbox to the into an Archean computer.
@@ -18,6 +18,12 @@ Use -h to display available arguments.
 - If the image is too bright or too dark, use the Brightness values in the program and generate the code again to update the color palette. By default the values are darker than the source image to combat overly bright colors on Archean computers
 
 ![Screenshot](screenshot.png)
+
+## Performance and color space
+
+If you use an image with a limited color palette, the code can simplify identical areas into larger rectangles. "Identical" in this case means actually fully identical colors.
+This is only achieved if you're drawing the image yourself, or process the image in Photoshop or similar to reduce the color palette (indexed colors).
+A JPG source file, or an image with aliased (soft edges) will not give you an optimal result, since they will have many variations on almost the same color. GIF or PNG are better for optimizing and maintaining exact colors.
 
 ## Details
 The image will be processed into a grid where each number is a color value from a generated palette.
