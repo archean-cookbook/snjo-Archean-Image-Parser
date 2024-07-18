@@ -9,5 +9,7 @@ if (args.Length > 0)
 else
 {
     Menu menu = new Menu();
+    Console.WriteLine("Starting in menu mode. For automatic mode, use arguments (try -h or help)");
+    Console.WriteLine();
     while(menu.MenuLoop());
 }

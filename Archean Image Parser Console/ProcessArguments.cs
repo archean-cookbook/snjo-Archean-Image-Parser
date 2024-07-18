@@ -26,16 +26,18 @@ namespace Archean_Image_Parser_Console
         {
             Parser parser = new Parser();
             
-            if (args.Length < 2)
+            if (args.Length == 1)
             {
-                if (args.Length >= 1)
+                if (args[0] == "h" || args[0] == "-h" || args[0] == "--h" || args[0] == "/?" || args[0] == "/h" || args[0] == "help")
                 {
-                    if (args[0] == "h" || args[0] == "-h" || args[0] == "--h" || args[0] == "/?" || args[0] == "/h" || args[0] == "help")
                     HelpInfo();
                     Environment.Exit((int)Parser.ErrorCodes.Quit);
                 }
-                Console.WriteLine("Too few arguments");
-                Helphint();
+                else
+                {
+                    Console.WriteLine("Too few arguments");
+                    Helphint();
+                }
                 Environment.Exit((int)Parser.ErrorCodes.TooFewArguments);
             }
 
@@ -257,6 +259,7 @@ namespace Archean_Image_Parser_Console
             Console.ForegroundColor = normal;
             Console.WriteLine("OK = 0, Quit = 1, FileNotFound = 2, FileError = 3, ImageError = 4");
             Console.WriteLine("ProcessingError = 5, OutputFileError = 6, TooFewArguments = 7, InvalidArguments = 8");
+            Console.WriteLine();
             Console.ForegroundColor = prevColor;
         }
     }
