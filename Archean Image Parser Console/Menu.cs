@@ -23,7 +23,7 @@ namespace Archean_Image_Parser_Console
 
         }
 
-        private void ExitProgram(int ExitCode)
+        private static void ExitProgram(int ExitCode)
         {
             Environment.Exit(ExitCode);
         }
