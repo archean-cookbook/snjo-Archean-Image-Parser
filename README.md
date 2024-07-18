@@ -62,7 +62,7 @@ This is useful if you're creating a function with stretching capabilities, such 
 
 ## Pixel grid
 
-If you're using the console version. you can output a grid of the pixels in the image, where each number represents the palette swatc used at that pixel. This could be used for writing different optimization algorithms.
+If you're using the console version. you can output a grid of the pixels in the image, where each number represents the palette swatch used at that pixel. This could be used for writing different optimization algorithms.
 
 ## Console version arguments
 
