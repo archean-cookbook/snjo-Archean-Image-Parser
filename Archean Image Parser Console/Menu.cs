@@ -25,7 +25,7 @@ namespace Archean_Image_Parser_Console
 
         private void ExitProgram(int ExitCode)
         {
-            Environment.Exit(0);
+            Environment.Exit(ExitCode);
         }
 
         private string SelectImageFile()
@@ -38,7 +38,7 @@ namespace Archean_Image_Parser_Console
             }
             else if (filename.ToLower() == "q")
             {
-                ExitProgram(0);
+                ExitProgram((int)Parser.ErrorCodes.Quit);
             }
             else if (File.Exists(filename))
             {
@@ -133,7 +133,7 @@ namespace Archean_Image_Parser_Console
             }
             else if (outfile.ToLower() == "q")
             {
-                ExitProgram(0);
+                ExitProgram((int)Parser.ErrorCodes.Quit);
             }
             else if (outfile.Length == 0)
             {
@@ -199,7 +199,7 @@ namespace Archean_Image_Parser_Console
             }
             else if (mode == ConsoleKey.Q)
             {
-                ExitProgram(0);
+                ExitProgram((int)Parser.ErrorCodes.Quit);
             }
             else
             {
@@ -224,7 +224,7 @@ namespace Archean_Image_Parser_Console
                 Console.WriteLine("Image processed. Select output");
                 while (SelectOutput() == false);
                 Console.WriteLine();
-                ExitProgram(1);
+                ExitProgram((int)Parser.ErrorCodes.OK);
             }
             else
             {

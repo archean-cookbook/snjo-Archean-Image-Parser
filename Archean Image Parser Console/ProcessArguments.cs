@@ -25,7 +25,6 @@ namespace Archean_Image_Parser_Console
         public ProcessArguments(string[] args)
         {
             Parser parser = new Parser();
-            //Console.WriteLine("Processing command line arguments");
             
             if (args.Length < 2)
             {
@@ -33,6 +32,7 @@ namespace Archean_Image_Parser_Console
                 {
                     if (args[0] == "h" || args[0] == "-h" || args[0] == "--h" || args[0] == "/?" || args[0] == "/h" || args[0] == "help")
                     HelpInfo();
+                    Environment.Exit((int)Parser.ErrorCodes.Quit);
                 }
                 Console.WriteLine("Too few arguments");
                 Helphint();
@@ -42,9 +42,11 @@ namespace Archean_Image_Parser_Console
             imageFileName = args[0];
             outputFile = args[1];
 
-
-
-            if (args.Length == 3)
+            if (args.Length == 2)
+            {
+                // just input and output
+            }
+            else if (args.Length == 3)
             {
                 string pMode = args[2];
 
@@ -93,6 +95,7 @@ namespace Archean_Image_Parser_Console
 
             if (File.Exists(imageFileName) == false)
             {
+                Console.WriteLine($"File not found: {imageFileName}");
                 Environment.Exit((int)Parser.ErrorCodes.FileNotFound);
             }
 
@@ -112,10 +115,21 @@ namespace Archean_Image_Parser_Console
             
             if (resultCommands != null)
             {
+                if (outputFile == "=")
+                {
+                    outputFile = Path.GetFileNameWithoutExtension(imageFileName) + ".xc";
+                    Console.WriteLine($"Setting output file name to {outputFile}");
+                }
+
                 if (outputFile.ToLower() == "console")
                 {
                     OutputToConsole(resultCommands);
                     Environment.Exit((int)Parser.ErrorCodes.OK);
+                }
+                if (outputFile == "=")
+                {
+                    outputFile = Path.GetFileNameWithoutExtension(imageFileName) + ".xc";
+                    Console.WriteLine($"Setting output file name to {outputFile}");
                 }
                 else
                 {
@@ -179,32 +193,71 @@ namespace Archean_Image_Parser_Console
 
         private void HelpInfo()
         {
+            ConsoleColor prevColor = Console.ForegroundColor;
+            ConsoleColor normal = ConsoleColor.Gray;
+            ConsoleColor heading = ConsoleColor.Yellow;
+            ConsoleColor highlight = ConsoleColor.Cyan;
+
+
             Console.WriteLine();
+            Console.ForegroundColor = heading;
             Console.WriteLine("Archean image parser by Andreas Aakvik Gogstad (snjo)");
+            Console.ForegroundColor = normal;
             Console.WriteLine("https://github.com/archean-cookbook/snjo-Archean-Image-Parser");
             Console.WriteLine("Processes an image file into a function with XenonCode draw commands for the game Archean");
             Console.WriteLine();
             Console.WriteLine("To use menu based mode, start the program with no arguments.");
             Console.WriteLine();
+            Console.ForegroundColor = heading;
             Console.WriteLine("Command line arguments:");
-            Console.WriteLine();
+            Console.ForegroundColor = highlight;
             Console.WriteLine("ArcheanImageParser imagefile outputfile [mode]");
             Console.WriteLine("ArcheanImageParser imagefile outputfile [red green blue] [mode]");
+            Console.ForegroundColor = normal;
+            Console.WriteLine("The output file argument can be replaced by = to use the same name as imagefile + .xc");
             Console.WriteLine();
+            Console.ForegroundColor = heading;
             Console.WriteLine("Examples:");
+            Console.ForegroundColor = highlight;
             Console.WriteLine("ArcheanImageParser test.png out.xc");
+            Console.WriteLine("ArcheanImageParser test.png =");
             Console.WriteLine("ArcheanImageParser test.png out.xc v");
             Console.WriteLine("ArcheanImageParser test.png out.xc 80 60 60 horizontal");
+            Console.ForegroundColor = normal;
             Console.WriteLine();
             Console.WriteLine("If colors are omitted, the default value of 60 is used for all channels (60% brightness)");
             Console.WriteLine();
+            Console.ForegroundColor = heading;
             Console.WriteLine("Modes:");
-            Console.WriteLine("rect        Rectangle mode, outputting an efficient mix of shapes for the shortest code");
-            Console.WriteLine("horizontal  (or h) Outputs only horizontal lines and points");
-            Console.WriteLine("vertical    (or v) Outputs only vertical lines and points");
-            Console.WriteLine("grid        Outputs the grid of pixels found in the image, numbers represent palette swatches.");
+            Console.ForegroundColor = highlight;
+            Console.Write("rect        ");
+            Console.ForegroundColor = normal;
+            Console.WriteLine("Rectangle mode, outputting an efficient mix of shapes for the shortest code");
+            Console.ForegroundColor = highlight;
+            Console.Write("horizontal  ");
+            Console.ForegroundColor = normal;
+            Console.WriteLine("(or h) Outputs only horizontal lines and points");
+            Console.ForegroundColor = highlight;
+            Console.Write("vertical    ");
+            Console.ForegroundColor = normal;
+            Console.WriteLine("(or v) Outputs only vertical lines and points");
+            Console.ForegroundColor = highlight;
+            Console.Write("grid        ");
+            Console.ForegroundColor = normal;
+            Console.WriteLine("Outputs the grid of pixels found in the image, numbers represent palette swatches.");
             Console.WriteLine("            Does not output a draw function. This is used for building alternative algorithms.");
-            Console.WriteLine("Available image formats: PNG, BMP, JPEG, GIF, TIFF, TGA, PBM, QOI, WEBP");
+            Console.WriteLine();
+            Console.ForegroundColor = heading;
+            Console.WriteLine("Available image formats");
+            Console.ForegroundColor = normal;
+            Console.WriteLine("PNG, BMP, JPEG, GIF, TIFF, TGA, PBM, QOI, WEBP");
+            Console.WriteLine();
+            Console.ForegroundColor = heading;
+            Console.WriteLine("Error codes:");
+            Console.ForegroundColor = normal;
+            Console.WriteLine("OK = 0, Quit = 1, FileNotFound = 2, FileError = 3, ImageError = 4");
+            Console.WriteLine("ProcessingError = 5, OutputFileError = 6, TooFewArguments = 7, InvalidArguments = 8");
+            Console.ForegroundColor = prevColor;
         }
     }
 }
