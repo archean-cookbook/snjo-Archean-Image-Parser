@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>img\icon.ico</ApplicationIcon>
+    <AssemblyName>Archean Image Parser GUI</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

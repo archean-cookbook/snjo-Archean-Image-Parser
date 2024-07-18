@@ -6,12 +6,14 @@ using System.Drawing.Imaging;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace Archean_Image_Parser
 {
     public partial class MainWindow : Window
     {
         Parser parser = new();
+        string? commandsOut = null;
 
         public MainWindow()
         {
@@ -48,17 +50,66 @@ namespace Archean_Image_Parser
 
         private void ProcessHorizontal_Click(object sender, RoutedEventArgs e)
         {
-            TextBoxCommands.Text = parser.ProcessImage(Parser.ProcessingMode.horizontal, GetBrightness("Red"), GetBrightness("Green"), GetBrightness("Blue"));
+            commandsOut = parser.ProcessImage(Parser.ProcessingMode.horizontal, GetBrightness("Red"), GetBrightness("Green"), GetBrightness("Blue"));
+            TextBoxCommands.Text = commandsOut;
         }
 
         private void ProcessVertical_Click(object sender, RoutedEventArgs e)
         {
-            TextBoxCommands.Text = parser.ProcessImage(Parser.ProcessingMode.vertical, GetBrightness("Red"), GetBrightness("Green"), GetBrightness("Blue"));
+            commandsOut = parser.ProcessImage(Parser.ProcessingMode.vertical, GetBrightness("Red"), GetBrightness("Green"), GetBrightness("Blue"));
+            TextBoxCommands.Text = commandsOut;
         }
 
         private void ProcessRect_Click(object sender, RoutedEventArgs e)
         {
-            TextBoxCommands.Text = parser.ProcessImage(Parser.ProcessingMode.rect, GetBrightness("Red"), GetBrightness("Green"), GetBrightness("Blue"));
+            commandsOut = parser.ProcessImage(Parser.ProcessingMode.rect, GetBrightness("Red"), GetBrightness("Green"), GetBrightness("Blue"));
+            TextBoxCommands.Text = commandsOut;
+        }
+
+        private void SaveFile_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveDialog = new()
+            {
+                Filter = "Xenon files (*.xc)|*.xc|Text files *.txt)|*.txt|All files (*.*)|*.*"
+            };
+            bool? result = saveDialog.ShowDialog();
+            if (result == null)
+            {
+                Debug.WriteLine("save dialog result null");
+                return;
+            }    
+            if(result == true)
+            {
+                Debug.WriteLine("save dialog OK");
+                string filename = saveDialog.FileName;
+                try
+                {
+                    File.WriteAllText(filename, commandsOut);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error saving to file:\r\n\r\n"+ex.ToString());
+                }
+            }
+            else
+            {
+                Debug.WriteLine("save dialog cancelled");
+            }
+        }
+
+        private void CopyToClipboard_Click(object sender, RoutedEventArgs e)
+        {
+            if (commandsOut != null && commandsOut.Length > 0)
+            {
+                try
+                {
+                    Clipboard.SetText(commandsOut);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error writing to clipboard:\r\n" + ex.ToString());
+                }
+            }
         }
 
         public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)

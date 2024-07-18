@@ -11,6 +11,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="100"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -62,16 +63,15 @@
             </StackPanel>
         </Border>
         <Grid Grid.Row="2" Background="Gray">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="3*"/>
-            </Grid.ColumnDefinitions>
-            <ScrollViewer Grid.Column="0" Margin="5" >
-                <TextBox x:Name="TextBoxGrid" FontFamily="Consolas"/>
-            </ScrollViewer>
             <ScrollViewer Grid.Column="1" Margin="5" >
                 <TextBox x:Name="TextBoxCommands"/>
             </ScrollViewer>
+        </Grid>
+        <Grid Grid.Row="3" Background="Gray" >
+            <StackPanel Orientation="Horizontal" Height="30" Margin="5">
+                <Button x:Name="ButtonSaveFile" Width="120" Click="SaveFile_Click" Margin="0,0,5,0">Save file</Button>
+                <Button x:Name="ButtonCopyToClipboard" Width="120" Click="CopyToClipboard_Click" Margin="0,0,5,0">Copy to clipboard</Button>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>
