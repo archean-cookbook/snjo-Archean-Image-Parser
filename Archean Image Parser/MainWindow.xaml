@@ -21,8 +21,9 @@
                 </Style>
             </StackPanel.Resources>
             <Button x:Name="ButtonLoadImage" Content=" Load image " Click="ButtonLoadImage_Click"></Button>
-            <Button x:Name="ButtonProcessRect" Content=" Process as Rectangles (recommended) " Click="ProcessRect_Click"></Button>
-            <Rectangle Width="50"/>
+            <Button x:Name="ButtonProcessRect" Content=" Process (normal/recommended) " Click="ProcessRect_Click"></Button>
+            <Rectangle Width="30"/>
+            <Button x:Name="ButtonProcessRanked" Content=" Process as Rectangles (ranked) " Click="ProcessRanked_Click"></Button>
             <Button x:Name="ButtonProcessHorizontal" Content=" Process as lines, Horizontal " Click="ProcessHorizontal_Click"></Button>
             <Button x:Name="ButtonProcessVertical" Content=" Process as lines, Vertical " Click="ProcessVertical_Click"></Button>
             

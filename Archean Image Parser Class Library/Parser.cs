@@ -1,9 +1,11 @@
-﻿using SixLabors.ImageSharp;
+﻿using Archean_Image_Parser_Class_Library;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
 //using System.Drawing;
 //using System.Drawing.Imaging;
 using System.Text;
+using System.Windows.Forms;
 
 
 namespace ParseLib
@@ -25,6 +27,7 @@ namespace ParseLib
             vertical,
             rect,
             grid,
+            ranked
         }
 
         public enum ErrorCodes
@@ -205,7 +208,13 @@ namespace ParseLib
             }
             else if (processingMode == ProcessingMode.rect)
             {
+                //commands.AppendLine(CreateDrawCommandsRect(grid)); //,name)
                 commands.AppendLine(CreateDrawCommandsRect(grid)); //,name)
+            }
+            else if (processingMode == ProcessingMode.ranked)
+            {
+                //commands.AppendLine(CreateDrawCommandsRect(grid)); //,name)
+                commands.AppendLine(CreateDrawCommandsRanked(grid)); //,name)
             }
             else if (processingMode == ProcessingMode.grid)
             {
@@ -216,7 +225,25 @@ namespace ParseLib
             return commands.ToString();
         }
 
-        static (int width, int height) Chunk(int[,] grid, int x, int y)
+        static (int width, int height) ChunkAt(int[,] grid, int x, int y)
+        {
+            (int width, int height) cHorz = ChunkAtHorizontalBias(grid, x, y);
+            (int width, int height) cVert = ChunkAtVerticalBias(grid, x, y);
+            int sizeHorz = cHorz.width * cHorz.height;
+            int sizeVert = cVert.width * cVert.height;
+            if (sizeHorz > sizeVert)
+            {
+                //Debug.WriteLine($"use cHorz {cHorz} {cVert}");
+                return cHorz;
+            }
+            else
+            {
+                //Debug.WriteLine($"use cVert {cHorz} {cVert}");
+                return cVert;
+            }
+        }
+
+        static (int width, int height) ChunkAtHorizontalBias(int[,] grid, int x, int y)
         {
             // check for an area with identically colored pixels in a rectangle
             int width = 0;
@@ -233,7 +260,7 @@ namespace ParseLib
                     //foundMismatch = true;
                     break;
                 }
-                int h = Parser.ColumnColorHeight(grid, x, y);
+                int h = ColumnColorHeight(grid, x, y);
                 if (width == 0)
                 {
                     height = h;
@@ -253,6 +280,41 @@ namespace ParseLib
             return (width, height);
         }
 
+        static (int width, int height) ChunkAtVerticalBias(int[,] grid, int x, int y)
+        {
+            // check for an area with identically colored pixels in a rectangle
+            int width = 0;
+            int height = 0;
+            int sourcePalette = grid[x, y];
+            
+            int gridHeight = grid.GetLength(1);
+
+            while (y < gridHeight)
+            {
+                int foundPalette = grid[x, y];
+                if (foundPalette != sourcePalette)
+                {
+                    break;
+                }
+                int w = ColumnColorWidth(grid, x, y);
+                if (height == 0)
+                {
+                    width = w;
+                }
+                if (w < width)
+                {
+                    break;
+                }
+                else
+                {
+                    width = Math.Min(w, width);
+                }
+                y++;
+                height++;
+            }
+            return (width, height);
+        }
+
         static void RemoveChunkedPixelsFromGrid(int[,] grid, int x, int y, int right, int bottom)
         {
             // sets a grid pixel to -1, discarded when included in a chunk, so it's ignored by other later chunks
@@ -263,6 +325,102 @@ namespace ParseLib
                     grid[sx, sy] = -1;
                 }
             }
+        }
+
+        string CreateDrawCommandsRanked(int[,] grid)//, string name)
+        {
+            // loops through entire image to find rects or lines with the same color to combine
+            int width = grid.GetLength(0);
+            int height = grid.GetLength(1);
+            StringBuilder commands = new();
+            List<PixelChunk> pixelChunks = new List<PixelChunk>();
+            int breakAtSize = 2; // used in break condition
+            int lastSize = breakAtSize+1; // used in break condition
+            //bool log = false;
+            while (lastSize > breakAtSize)
+            {
+                pixelChunks.Clear();
+                pixelChunks = FindChunks(grid, width, height, commands);
+                StringBuilder sb = new StringBuilder();
+                List<PixelChunk> SortedList = pixelChunks.OrderByDescending(o => o.smallestSide).ToList();
+                //if (log)
+                //{
+                //    foreach (PixelChunk px in SortedList)
+                //    {
+                //        sb.AppendLine($"ss:{px.smallestSide} s:{px.size} x:{px.x} y:{px.y}, w:{px.width}, h:{px.height}, p:{px.palette}");
+                //        File.WriteAllText("log.txt", sb.ToString());
+                //    }
+                //    log = false;
+                //}
+                
+                PixelChunk? largest = SortedList.FirstOrDefault();
+                if (largest != null)
+                {
+                    lastSize = largest.smallestSide;
+                }
+                else
+                {
+                    lastSize = 0;
+                }
+                if (pixelChunks.Count == 0 || largest == null)
+                {
+                    Debug.WriteLine($"aborting while. {pixelChunks.Count}, {largest == null}");
+                    break;
+                }
+                else
+                {
+                    RemoveChunkedPixelsFromGrid(grid, largest.x, largest.y, largest.x + largest.width, largest.y + largest.height);
+                    string info = "rect";
+                    if (largest.width == 1 && largest.height == 1)
+                    {
+                        commands.AppendLine($"\t$_screen.draw($x+{largest.x}, $y+{largest.y}, $_c{largest.palette}) ; point");
+                    }
+                    else
+                    {
+                        if (largest.width == 1 || largest.height == 1) // 
+                        {
+                            info = "line";
+                        }
+                        commands.AppendLine($"\t$_screen.draw($x+{largest.x}, $y+{largest.y}, $_c{largest.palette}, {largest.width},{largest.height}) ; " + info);
+                    }
+                }
+            }
+            Debug.WriteLine($"Ranking done, length: {commands.Length}");
+            commands.AppendLine(CreateDrawCommandsRect(grid));
+            Debug.WriteLine($"Added remaining, length: {commands.Length}");
+
+            return commands.ToString();
+        }
+
+        private List<PixelChunk> FindChunks(int[,] grid, int width, int height, StringBuilder commands)
+        {
+            List<PixelChunk> pixelChunks = new List<PixelChunk>();
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+
+                    int paletteNum = grid[x, y];
+
+                    if (paletteNum < 0)
+                    {
+                        continue;
+                    }
+                    int alpha = palette[paletteNum].A;
+                    if (alpha == 0)
+                    {
+                        // skip
+                    }
+                    else
+                    {
+                        string info = "rect";
+                        (int w, int h) = ChunkAt(grid, x, y);
+                        PixelChunk pchunk = new PixelChunk(x, y, w, h, paletteNum);
+                        pixelChunks.Add(pchunk);
+                    }
+                }
+            }
+            return pixelChunks;
         }
 
         string CreateDrawCommandsRect(int[,] grid)//, string name)
@@ -290,23 +448,20 @@ namespace ParseLib
                     }
                     else
                     {
-                        (int w, int h) = Chunk(grid, x, y);
+                        string info = "rect";
+                        (int w, int h) = ChunkAt(grid, x, y);
                         RemoveChunkedPixelsFromGrid(grid, x, y, x + w, y + h);
                         if (w == 1 && h == 1)
                         {
-                            commands.AppendLine($"\t$_screen.draw_point($x+{x},$y+{y},$_c{paletteNum})");
+                            commands.AppendLine($"\t$_screen.draw($x+{x}, $y+{y}, $_c{paletteNum}) ; point");
                         }
-                        else if (w == 1) // vertical
+                        else 
                         {
-                            commands.AppendLine($"\t$_screen.draw_line($x+{x},$y+{y},$x+{x},$y+{y + h},$_c{paletteNum}) ; line vertical h{h}");
-                        }
-                        else if (h == 1) // vertical
-                        {
-                            commands.AppendLine($"\t$_screen.draw_line($x+{x},$y+{y},$x+{x + w},$y+{y},$_c{paletteNum}) ; line horizontal w{w}");
-                        }
-                        else
-                        {
-                            commands.AppendLine($"\t$_screen.draw_rect($x+{x},$y+{y},$x+{x + w},$y+{y + h},0,$_c{paletteNum}) ; w{w} h{h}");
+                            if (w == 1 || h == 1) // 
+                            {
+                                info = "line";
+                            }
+                            commands.AppendLine($"\t$_screen.draw($x+{x}, $y+{y}, $_c{paletteNum}, {w},{h}) ; " + info);
                         }
                     }
                 }
@@ -427,6 +582,28 @@ namespace ParseLib
                 height++;
             }
             return height;
+        }
+
+        public static int ColumnColorWidth(int[,] grid, int x, int y)
+        {
+            // check for length of unbroken identically colored pixels in a column
+
+            int width = 0;
+            int sourcePalette = grid[x, y];
+            int gridWidth = grid.GetLength(0);
+
+            //while (y < gridHeight)
+            while (x < gridWidth)
+            {
+                int foundPalette = grid[x, y];
+                if (foundPalette != sourcePalette)
+                {
+                    break;
+                }
+                x++;
+                width++;
+            }
+            return width;
         }
     }
 }

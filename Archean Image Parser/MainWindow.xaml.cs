@@ -65,6 +65,12 @@ namespace Archean_Image_Parser
             commandsOut = parser.ProcessImage(Parser.ProcessingMode.rect, GetBrightness("Red"), GetBrightness("Green"), GetBrightness("Blue"));
             TextBoxCommands.Text = commandsOut;
         }
+        
+        private void ProcessRanked_Click(object sender, RoutedEventArgs e)
+        {
+            commandsOut = parser.ProcessImage(Parser.ProcessingMode.ranked, GetBrightness("Red"), GetBrightness("Green"), GetBrightness("Blue"));
+            TextBoxCommands.Text = commandsOut;
+        }
 
         private void SaveFile_Click(object sender, RoutedEventArgs e)
         {
